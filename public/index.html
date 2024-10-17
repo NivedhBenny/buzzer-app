@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buzzer App</title>
+    <style>
+      body {
+        text-align: center;
+        margin-top: 50px;
+      }
+      .buzzer {
+        font-size: 24px;
+        padding: 20px;
+        margin: 20px;
+      }
+      #result {
+        margin-top: 20px;
+        font-size: 28px;
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Real-Time Buzzer</h1>
+    <button id="buzzer1" class="buzzer">User 1 Buzz</button>
+    <button id="buzzer2" class="buzzer">User 2 Buzz</button>
+    <p id="result"></p>
+    <button id="reset">Reset</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io(); // Establish socket connection
+
+      // Buzzer 1 click event
+      document.getElementById("buzzer1").addEventListener("click", () => {
+        socket.emit("buzz", { user: "User 1" });
+      });
+
+      // Buzzer 2 click event
+      document.getElementById("buzzer2").addEventListener("click", () => {
+        socket.emit("buzz", { user: "User 2" });
+      });
+      document.getElementById("reset").addEventListener("click", () => {
+        socket.emit("reset");
+      });
+
+      // Listen for the server to announce who buzzed first
+      socket.on("buzzer-winner", (data) => {
+        document.getElementById(
+          "result"
+        ).textContent = `${data.user} buzzed first!`;
+        document.getElementById("buzzer1").disabled = true;
+        document.getElementById("buzzer2").disabled = true;
+      });
+
+      // Reset the buzzer state (you can add a reset button for this)
+      socket.on("reset", () => {
+        document.getElementById("result").textContent = "";
+        document.getElementById("buzzer1").disabled = false;
+        document.getElementById("buzzer2").disabled = false;
+      });
+    </script>
+  </body>
+</html>
